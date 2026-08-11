@@ -1,12 +1,11 @@
-const express = require("express");
-const routes = require("./routes");
+import express from "express";
+import routes from "./routes";
 
 // Classe para configurar o Express.
 class App {
 
     constructor() {
     
-        
         this.server = express(); // Cria o servidor do Express.
 
         // Chama as funções para configurar os middlewares e as rotas.
@@ -27,4 +26,4 @@ class App {
     }
 }
 
-module.exports = new App().server; // Cria uma nova aplicação da classe App, e exporta o server do Express.
+export default new App().server; // Cria uma nova aplicação da classe App, e exporta o server do Express.
