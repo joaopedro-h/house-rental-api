@@ -1,20 +1,8 @@
 import {Router} from "express"; // Pega somente o Router que o Express disponibiliza.
-import connection from "../database/connection";
+import SessionController from "./controllers/SessionController";
 
 const routes = new Router(); // routes armazena o Router onde as rotas serão criadas.
 
-routes.post("/teste", async (req, res) => {
-
-    const {nome} = req.body;
-
-    const sqlInsert = 
-    ` INSERT INTO casas (nome)
-    VALUES (?)`;
-
-    await connection.execute(sqlInsert,[nome]);
-
-    return res.send("Adicionado com sucesso!")
-
-});
+routes.post("/sessions", SessionController.store);
 
 export default routes; // Exporta o routes para ser usado no app.js.
