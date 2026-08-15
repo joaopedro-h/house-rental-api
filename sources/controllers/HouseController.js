@@ -2,6 +2,61 @@ import connection from "../../database/connection"; // Importa a conexão com o 
 
 class HouseController {
     
+    async index(req, res) { // Método responsável por filtrar uma casa de acordo com o status selecionado: true ou false.
+
+        const {status} = req.query;
+
+        const sqlHousesIndex = 
+        `SELECT * FROM houses
+        WHERE status = ?`
+
+        const [result] = await connection.execute(sqlHousesIndex, [status]);
+
+        return res.status(200).json(result);
+
+    }
+
+    async update(req, res) { // Método responsável por editar uma casa já cadastrada.
+
+        const {filename} = req.file;
+        const {house_id} = req.params;
+        const {description, price, location, status} = req.body; // Pega as informações da casa enviadas pelo usuário.
+        const {user_id} = req.headers;
+
+        const sqlHouseUpdate =
+        `UPDATE houses
+         SET thumbnail = ?,
+         description = ?,
+         price = ?,
+         location = ?,
+         status = ?,
+         user_id = ?
+        WHERE id = ?`
+
+        const houseValuesUpdate = [
+            filename,
+            description,
+            price,
+            location,
+            status,
+            user_id,
+            house_id
+        ]
+
+        await connection.execute(sqlHouseUpdate, houseValuesUpdate);
+
+        return res.status(200).json({
+            message: "Casa editada com sucesso!",
+            thumbnail: `http://localhost:3333/files/${filename}`,
+            description,
+            price,
+            location,
+            status,
+            user_id
+        });
+
+    }
+
     async store(req, res) { // Método responsável por cadastrar uma nova casa.
 
         const {filename} = req.file; // Pega o nome do arquivo enviado pelo usuário.
