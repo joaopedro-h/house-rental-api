@@ -20,7 +20,7 @@ class SessionController {
         `INSERT INTO users (email)
         VALUES (?)`;
 
-        await connection.execute(sqlUser,[email]); // Executa o cadastro do usuário no banco de dados.
+        await connection.execute(sqlUser, [email]); // Executa o cadastro do usuário no banco de dados.
 
         return res.status(201).json({message: "Usuário cadastrado com sucesso!"}); // Retorna uma mensagem informando que o usuário foi cadastrado com sucesso.
     }

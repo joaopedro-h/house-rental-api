@@ -26,4 +26,4 @@ class App {
     }
 }
 
-export default new App().server; // Cria uma nova aplicação da classe App, e exporta o server do Express.
+export default new App().server; // Cria uma nova instância da classe App e exporta somente a propriedade server do Express.
