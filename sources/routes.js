@@ -1,7 +1,6 @@
 import {Router} from "express"; // Pega somente o Router que o Express disponibiliza.
 import multer from "multer";
 import uploadConfig from "./config/upload";
-
 import SessionController from "./controllers/SessionController";
 import HouseController from "./controllers/HouseController";
 

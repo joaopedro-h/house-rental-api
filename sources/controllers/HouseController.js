@@ -29,9 +29,8 @@ class HouseController {
          description = ?,
          price = ?,
          location = ?,
-         status = ?,
-         user_id = ?
-        WHERE id = ?`
+         status = ?
+        WHERE id = ? AND user_id = ?`
 
         const houseValuesUpdate = [
             filename,
@@ -39,11 +38,15 @@ class HouseController {
             price,
             location,
             status,
-            user_id,
-            house_id
+            house_id,
+            user_id
         ]
 
-        await connection.execute(sqlHouseUpdate, houseValuesUpdate);
+        const [result] = await connection.execute(sqlHouseUpdate, houseValuesUpdate);
+
+        if (result.affectedRows === 0) {
+            return res.status(403).json({message: "Você não é o proprietário dessa casa!"});
+        }        
 
         return res.status(200).json({
             message: "Casa editada com sucesso!",

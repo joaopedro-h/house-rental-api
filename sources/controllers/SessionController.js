@@ -2,7 +2,7 @@ import connection from "../../database/connection"; // Importa a conexão com o 
 
 class SessionController {
 
-    async store (req, res){ // Método responsável por cadastrar um novo usuário.
+    async store(req, res){ // Método responsável por cadastrar um novo usuário.
         
         const {email} = req.body; // Pega o email enviado pelo usuário no corpo da requisição.
 
