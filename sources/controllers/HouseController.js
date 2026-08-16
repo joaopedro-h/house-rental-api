@@ -92,6 +92,25 @@ class HouseController {
         });
 
     }
+
+    async delete(req, res) {
+
+        const {house_id} = req.params;
+        const {user_id} = req.headers;
+
+        const sqlDeleteHouse =
+        `DELETE FROM houses
+        WHERE id = ? AND user_id = ?;`
+
+        const [result] = await connection.execute(sqlDeleteHouse,[house_id, user_id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(403).json({message: "Você não é o proprietário dessa casa!"});
+        }
+
+        return res.status(200).json({message: "Casa excluída com sucesso!"})
+    }
+
 }
 
 export default new HouseController(); // Exporta uma nova instância do HouseController.
