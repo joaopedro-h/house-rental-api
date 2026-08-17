@@ -17,4 +17,6 @@ routes.put("/houses/:house_id", upload.single("thumbnail"), HouseController.upda
 
 routes.delete("/houses/:house_id", HouseController.delete);
 
+routes.get("/houses/filter", HouseController.valueFilter);
+
 export default routes; // Exporta o routes para ser usado no app.js.
