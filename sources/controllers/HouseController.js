@@ -111,7 +111,7 @@ class HouseController {
         return res.status(200).json({message: "Casa excluída com sucesso!"})
     }
 
-    async valueFilter(req, res) {
+    async valueFilter(req, res) { // Método responsável por filtras casas por valores escolhidos pelo o usuário.
         
         const {minValue, maxValue} = req.query;
 
