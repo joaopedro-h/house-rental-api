@@ -13,7 +13,8 @@ class DashboardController {
         const [houses] = await connection.execute(sqlHouses,[user_id]);
 
         if (houses.length === 0) {
-            return res.status(404).json({message: "Você não possui casas cadastradas!"})
+            return res.status(404).json({
+                message: "Você não possui casas cadastradas!"})
         }
 
         return res.status(200).json({
