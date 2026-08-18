@@ -66,6 +66,16 @@ class HouseController {
         const {description, price, location, status} = req.body; // Pega as informações da casa enviadas pelo usuário.
         const {user_id} = req.headers; // Pega o ID do usuário enviado no cabeçalho da requisição.
 
+        const sqlUser = // Cria a query para buscar um usuário com o ID informado na requisição.
+        `SELECT id FROM users
+        WHERE id = ?;`
+
+        const [users] = await connection.execute(sqlUser,[user_id]);
+
+        if (users.length === 0) {
+            return res.status(404).json({message: "Usuário não encontrado!"})
+        }
+
         const sqlHouse = // Cria a query para cadastrar a casa no banco de dados.
         `INSERT INTO houses (thumbnail, description, price, location, status, user_id )
         VALUES (?,?,?,?,?,?)`
