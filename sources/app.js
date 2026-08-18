@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import path from "path";
 import routes from "./routes";
 
@@ -16,6 +17,8 @@ class App {
 
     // Configura os middlewares.
     middlewares(){
+        
+        this.server.use(cors());
         
         this.server.use(
             "/files",
