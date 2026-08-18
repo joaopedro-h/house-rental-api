@@ -93,7 +93,7 @@ class HouseController {
 
     }
 
-    async delete(req, res) { // Método responsável por excluir uma casa.
+    async destroy(req, res) { // Método responsável por excluir uma casa.
 
         const {house_id} = req.params;
         const {user_id} = req.headers;
@@ -122,15 +122,15 @@ class HouseController {
         location,
         status
         FROM houses
-        WHERE price BETWEEN ? AND ?;`
+        WHERE price BETWEEN ? AND ?
+        ORDER BY price ASC;`
 
         const [housesResult] = await connection.execute(sqlValues, [minValue, maxValue]);
 
         return res.status(200).json({
-            message: `Casas encontradas nos valores entre $RS${minValue} e $RS${maxValue}`,
+            message: `Casas encontradas nos valores entre R$${minValue} e $R$${maxValue}`,
             casas: housesResult
         });
-
     }
 
 }
