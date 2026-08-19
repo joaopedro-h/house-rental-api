@@ -2,7 +2,7 @@ import connection from "../../database/connection";
 
 class ReserveController {
 
-async store(req, res){
+    async store(req, res){
 
         const {user_id} = req.headers; // Pega o ID do usuário enviado no cabeçalho(headers) da requisição.
         const {house_id} = req.params; // Pega o ID da casa informado na URL da requisição.
@@ -102,6 +102,44 @@ async store(req, res){
         }
         
     }
+
+    async index(req, res){
+
+        const {user_id} = req.headers;
+
+        const sqlReservesUser = 
+        `SELECT 
+            r.id AS "ID da reserva",
+            r.date AS "Data",
+            u.email AS "Email do locatário",
+            h.thumbnail AS "Foto da casa",
+            h.description AS "Descrição",
+            h.price AS "Preço",
+            h.location AS "Localização",
+            u2.email AS "Email do locador"
+    
+        FROM reservations r
+
+        JOIN users u 
+        ON r.user_id = u.id
+
+        JOIN houses h
+        ON r.house_id = h.id
+
+        JOIN users u2
+        ON h.user_id = u2.id
+
+        WHERE u.id = ?;`
+
+        const [reserves] = await connection.execute(sqlReservesUser,[user_id]);
+
+        return res.status(200).json({
+            message: "Suas casas reservadas!",
+            casas: reserves
+        });
+
+    }
+
 }
 
 export default new ReserveController();

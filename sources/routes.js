@@ -20,5 +20,6 @@ routes.get("/houses/filter", HouseController.valueFilter);
 routes.get("/dashboard", DashboardController.show);
 
 routes.post("/houses/:house_id/reserve", ReserveController.store);
+routes.get("/reserves", ReserveController.index);
 
 export default routes; // Exporta o routes para ser usado no app.js.
