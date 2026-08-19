@@ -2,24 +2,24 @@ import connection from "../../database/connection";
 
 class ReserveController {
 
-    async store(req, res){
+async store(req, res){
 
-        const {user_id} = req.headers;
-        const {house_id} = req.params;
+        const {user_id} = req.headers; // Pega o ID do usuário enviado no cabeçalho(headers) da requisição.
+        const {house_id} = req.params; // Pega o ID da casa informado na URL da requisição.
 
-        const sqlUser =
+        const sqlUser = // Cria a query para verificar se o usuário existe.
         `SELECT id FROM users
         WHERE id = ?;`
 
-        const [user] = await connection.execute(sqlUser,[user_id]);
+        const [user] = await connection.execute(sqlUser,[user_id]); // Executa a consulta e guarda o resultado em "user".
 
-        if (user.length === 0) {
+        if (user.length === 0) { // Verifica se não foi encontrado nenhum usuário com esse ID.
             return res.status(404).json({
                 message: "Usuário não encontrado!"
             });
         }
 
-        const sqlHouse =
+        const sqlHouse = // Cria a query para buscar a casa e informação sobre o proprietário.
         `SELECT 
             h.id,
             h.user_id,
@@ -33,55 +33,55 @@ class ReserveController {
         ON h.user_id = u.id
         WHERE h.id = ?;`;
 
-        const [house] = await connection.execute(sqlHouse,[house_id]);
+        const [house] = await connection.execute(sqlHouse,[house_id]); // Executa a consulta e guarda os dados da casa em "house".
 
-        if (house.length === 0) {
+        if (house.length === 0) { // Verifica se a casa informada realmente existe.
             return res.status(404).json({
                 message: "Casa não encontrada!"
             });
         }
 
-        if (house[0].user_id === Number(user_id)) {
+        if (house[0].user_id === Number(user_id)) { // Verifica se o usuário está tentando reservar a própria casa.
             return res.status(403).json({
                 message: "Você não pode reservar sua própria casa!"
             });
         }
 
-        if (house[0].status === 0) {
+        if (house[0].status === 0) { // Verifica se a casa já está indisponível para locação.
             return res.status(409).json({
                 message: "Casa indisponível para locação!"
             });
         }
 
-        const conn = await connection.getConnection();
+        const conn = await connection.getConnection(); // Pega uma conexão do pool para poder iniciar a transação.
         
         try {
 
-            await conn.beginTransaction();
+            await conn.beginTransaction(); // Inicia uma transação para garantir que a atualização da casa e a reserva sejam feitas juntas.
 
-            const sqlHouseUpdate =
+            const sqlHouseUpdate = // Cria a query para deixar a casa indisponível após ser reservada.
             `UPDATE houses
             SET status = 0
             WHERE id = ? AND status = 1;`
 
-            const [houseUpdated] = await conn.execute(sqlHouseUpdate,[house_id]);
+            const [houseUpdated] = await conn.execute(sqlHouseUpdate,[house_id]); // Executa a atualização e guarda o resultado em "houseUpdated".
 
-            if (houseUpdated.affectedRows === 0) {
+            if (houseUpdated.affectedRows === 0) { // Verifica se a casa não foi atualizada, indicando que ela ficou indisponível antes da reserva ser feita.
                 await conn.rollback();
                 return res.status(409).json({
                     message: "Casa indisponível para locação!"
                 });
             }
 
-            const sqlReserve =
+            const sqlReserve = // Cria a query para registrar a reserva da casa.
             `INSERT INTO reservations (user_id, house_id)
             VALUES(?,?);`
 
-            await conn.execute(sqlReserve,[user_id, house_id]);
+            await conn.execute(sqlReserve,[user_id, house_id]); // Cadastra a reserva relacionando o usuário com a casa.
 
-            await conn.commit();
+            await conn.commit(); // Confirma a transação e salva todas as alterações no banco de dados.
 
-            return res.status(201).json({
+            return res.status(201).json({ // Retorna uma resposta informando que a casa foi reservada com sucesso.
                 message: "Casa reservada com sucesso!",
                 casa: {
                     "ID da casa": house[0].id,
@@ -94,7 +94,7 @@ class ReserveController {
 
         } catch (error) {
             
-            await conn.rollback();
+            await conn.rollback(); // Desfaz as alterações realizadas caso aconteça algum erro durante a reserva.
 
             return res.status(500).json({
                 message: "Erro ao reservar a casa!"
