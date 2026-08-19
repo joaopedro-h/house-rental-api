@@ -7,6 +7,18 @@ class ReserveController {
         const {user_id} = req.headers;
         const {house_id} = req.params;
 
+        const sqlUser =
+        `SELECT id FROM users
+        WHERE id = ?;`
+
+        const [user] = await connection.execute(sqlUser,[user_id]);
+
+        if (user.length === 0) {
+            return res.status(404).json({
+                message: "Usuário não encontrado!"
+            });
+        }
+
         const sqlHouse =
         `SELECT 
             h.id,
