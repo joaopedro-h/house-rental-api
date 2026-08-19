@@ -19,15 +19,27 @@ class ReserveController {
             });
         }
 
+        const sqlUserHouse =
+        `SELECT id FROM houses
+        WHERE id = ? AND user_id = ?`
+
+        const [result] = await connection.execute(sqlUserHouse,[house_id, user_id]);
+
+        if (result.length > 0) {
+            return res.status(403).json({
+                message: "Você não pode reservar sua própria casa!"
+            });
+        }
+
         const sqlHouse =
         `UPDATE houses
          SET status = 0
         WHERE id = ? AND status = 1;`
 
-        const [result] = await connection.execute(sqlHouse, [house_id]);
+        const [houseUpdated] = await connection.execute(sqlHouse,[house_id]);
 
-        if (result.affectedRows === 0) {
-            return res.status(401).json({
+        if (houseUpdated.affectedRows === 0) {
+            return res.status(409).json({
                 message: "Casa indisponível para locação!"
             });
         }
@@ -54,7 +66,7 @@ class ReserveController {
 
         const [houseReserved] = await connection.execute(sqlHouseReserved,[house_id]);
 
-        return res.status(200).json({
+        return res.status(201).json({
             message: "Casa reservada com sucesso!",
             casa: houseReserved
         });
