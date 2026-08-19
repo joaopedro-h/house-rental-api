@@ -133,6 +133,12 @@ class ReserveController {
 
         const [reserves] = await connection.execute(sqlReservesUser,[user_id]);
 
+        if (reserves.length === 0) {
+            return res.status(404).json({
+                message: "Você não tem casas reservadas!"
+            });
+        }
+
         return res.status(200).json({
             message: "Suas casas reservadas!",
             casas: reserves
