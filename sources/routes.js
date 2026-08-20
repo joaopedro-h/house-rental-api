@@ -21,5 +21,6 @@ routes.get("/dashboard", DashboardController.show);
 
 routes.post("/houses/:house_id/reserve", ReserveController.store);
 routes.get("/reserves", ReserveController.index);
+routes.delete("/reserves/cancel/:reserve_id", ReserveController.destroy);
 
 export default routes; // Exporta o routes para ser usado no app.js.

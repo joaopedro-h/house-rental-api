@@ -146,6 +146,60 @@ class ReserveController {
 
     }
 
+    async destroy(req, res){
+
+        const {reserve_id} = req.params;
+        const {user_id} = req.headers;
+
+        const sqlUserReserve =
+        `SELECT id FROM reservations
+        WHERE id = ? AND user_id = ?`
+
+        const [result] = await connection.execute(sqlUserReserve,[reserve_id,user_id]);
+
+        if (result.length === 0) {
+            return res.status(404).json({
+                message: "Você não possui reserva nessa casa!"
+            });
+        }
+
+        const conn = await connection.getConnection();
+
+        try {
+            
+            await conn.beginTransaction();
+
+            const sqlHouseStatus =
+            `UPDATE houses h
+            JOIN reservations r 
+            ON h.id = r.house_id
+            SET h.status = 1
+            WHERE r.id = ?`
+
+            await conn.execute(sqlHouseStatus,[reserve_id]);
+
+            const sqlCancelReserve =
+            `DELETE FROM reservations
+            WHERE id = ? `
+
+            await conn.execute(sqlCancelReserve,[reserve_id]);
+            
+            await conn.commit();
+            return res.status(200).json({
+                message: "Reserva cancelada com sucesso!"
+            })
+
+
+        } catch (error) {
+
+            await conn.rollback(); 
+            return res.status(500).json({
+                message: "Erro ao cancelar a reserva!"
+            });
+
+        }
+
+    }
 }
 
 export default new ReserveController();
