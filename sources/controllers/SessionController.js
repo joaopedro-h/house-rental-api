@@ -1,10 +1,19 @@
 import connection from "../../database/connection"; // Importa a conexão com o banco de dados.
+import * as Yup from "yup"; 
 
 class SessionController {
 
     async store(req, res){ // Método responsável por cadastrar um novo usuário.
+
+        const schema = Yup.object().shape({
+            email: Yup.string().email().required()
+        })
         
         const {email} = req.body; // Pega o email enviado pelo usuário no corpo da requisição.
+
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({message: "Falha na validação dos dados!"})
+        }
 
         const sqlEmail = // Cria a query para verificar se esse email já está cadastrado.
         `SELECT email FROM users
