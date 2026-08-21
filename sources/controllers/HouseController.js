@@ -1,4 +1,5 @@
 import connection from "../../database/connection"; // Importa a conexão com o banco de dados.
+import * as Yup from "yup";
 
 class HouseController {
     
@@ -18,10 +19,21 @@ class HouseController {
 
     async update(req, res) { // Método responsável por editar uma casa já cadastrada.
 
+        const schema = Yup.object().shape({
+            description: Yup.string().required(),
+            price: Yup.number().required(),
+            location: Yup.string().required(),
+            status: Yup.boolean().required()
+        })
+
         const {filename} = req.file;
         const {house_id} = req.params;
         const {description, price, location, status} = req.body; // Pega as informações da casa enviadas pelo usuário.
         const {user_id} = req.headers;
+
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({message: "Falha na validação dos dados!"})
+        }
 
         const sqlHouseUpdate =
         `UPDATE houses
@@ -62,9 +74,20 @@ class HouseController {
 
     async store(req, res) { // Método responsável por cadastrar uma nova casa.
 
+        const schema = Yup.object().shape({
+            description: Yup.string().required(),
+            price: Yup.number().required(),
+            location: Yup.string().required(),
+            status: Yup.boolean().required()
+        })
+
         const {filename} = req.file; // Pega o nome do arquivo enviado pelo usuário.
         const {description, price, location, status} = req.body; // Pega as informações da casa enviadas pelo usuário.
         const {user_id} = req.headers; // Pega o ID do usuário enviado no cabeçalho da requisição.
+
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({message: "Falha na validação dos dados!"})
+        }
 
         const sqlUser = // Cria a query para buscar um usuário com o ID informado na requisição.
         `SELECT id FROM users
