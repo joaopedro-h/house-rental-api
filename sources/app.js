@@ -18,7 +18,7 @@ class App {
     // Configura os middlewares.
     middlewares(){
         
-        this.server.use(cors());
+        this.server.use(cors()); // Permite que a API receba requisições de diferentes origens.
         
         this.server.use(
             "/files",

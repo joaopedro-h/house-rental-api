@@ -2,7 +2,7 @@ import connection from "../../database/connection"; // Importa a conexão com o 
 
 class DashboardController {
 
-    async show(req, res) {
+    async show(req, res) { // Método responsável por listar as casas cadastradas do usuário.
 
         const {user_id} = req.headers; // Pega o ID do usuário enviado no cabeçalho(headers) da requisição.
 

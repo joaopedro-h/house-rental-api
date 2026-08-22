@@ -2,7 +2,7 @@ import connection from "../../database/connection";
 
 class ReserveController {
 
-    async store(req, res){
+    async store(req, res){ // Método realizar a reserva da casa.
 
         const {user_id} = req.headers; // Pega o ID do usuário enviado no cabeçalho(headers) da requisição.
         const {house_id} = req.params; // Pega o ID da casa informado na URL da requisição.
@@ -103,11 +103,11 @@ class ReserveController {
         
     }
 
-    async index(req, res){
+    async index(req, res){ // Método responsável por listar as reservas do usuário.
 
-        const {user_id} = req.headers;
+        const {user_id} = req.headers; // Pega o ID do usuário enviado no cabeçalho(headers) da requisição.
 
-        const sqlReservesUser = 
+        const sqlReservesUser = // Cria a query para buscar as reservas do usuário.
         `SELECT 
             r.id AS "ID da reserva",
             r.date AS "Data",
@@ -131,60 +131,60 @@ class ReserveController {
 
         WHERE u.id = ?;`
 
-        const [reserves] = await connection.execute(sqlReservesUser,[user_id]);
+        const [reserves] = await connection.execute(sqlReservesUser,[user_id]); // Executa a consulta e guarda as reservas encontradas em "reserves".
 
-        if (reserves.length === 0) {
+        if (reserves.length === 0) { // Verifica se o usuário não possui nenhuma casa reservada.
             return res.status(404).json({
                 message: "Você não tem casas reservadas!"
             });
         }
 
-        return res.status(200).json({
+        return res.status(200).json({ // Retorna as casas reservadas pelo usuário.
             message: "Suas casas reservadas!",
             casas: reserves
         });
 
     }
 
-    async destroy(req, res){
+    async destroy(req, res){ // Método responsável por cancelar uma reserva.
 
-        const {reserve_id} = req.params;
-        const {user_id} = req.headers;
+        const {reserve_id} = req.params; // Pega o ID da reserva informado na URL da requisição.
+        const {user_id} = req.headers; // Pega o ID do usuário enviado no cabeçalho da requisição.
 
-        const sqlUserReserve =
+        const sqlUserReserve = // Cria a query para verificar se a reserva pertence ao usuário.
         `SELECT id FROM reservations
         WHERE id = ? AND user_id = ?`
 
-        const [result] = await connection.execute(sqlUserReserve,[reserve_id,user_id]);
+        const [result] = await connection.execute(sqlUserReserve,[reserve_id,user_id]); // Executa a consulta e guarda o resultado em "result".
 
-        if (result.length === 0) {
+        if (result.length === 0) { // Verifica se a reserva não foi encontrada para o usuário.
             return res.status(404).json({
                 message: "Você não possui reserva nessa casa!"
             });
         }
 
-        const conn = await connection.getConnection();
+        const conn = await connection.getConnection(); // Pega uma conexão do pool para poder iniciar a transação.
 
         try {
             
-            await conn.beginTransaction();
+            await conn.beginTransaction(); // Inicia uma transação para realizar as alterações da reserva.
 
-            const sqlHouseStatus =
+            const sqlHouseStatus = // Cria a query para deixar a casa disponível novamente após o cancelamento da reserva.
             `UPDATE houses h
             JOIN reservations r 
             ON h.id = r.house_id
             SET h.status = 1
             WHERE r.id = ?`
 
-            await conn.execute(sqlHouseStatus,[reserve_id]);
+            await conn.execute(sqlHouseStatus,[reserve_id]); // Executa a atualização do status da casa usando o ID da reserva.
 
-            const sqlCancelReserve =
+            const sqlCancelReserve = // Cria a query para excluir a reserva.
             `DELETE FROM reservations
             WHERE id = ? `
 
-            await conn.execute(sqlCancelReserve,[reserve_id]);
+            await conn.execute(sqlCancelReserve,[reserve_id]); // Executa a exclusão da reserva usando o ID informado.
             
-            await conn.commit();
+            await conn.commit(); // Confirma a transação e salva as alterações feitas no banco de dados.
             return res.status(200).json({
                 message: "Reserva cancelada com sucesso!"
             })
@@ -192,7 +192,7 @@ class ReserveController {
 
         } catch (error) {
 
-            await conn.rollback(); 
+            await conn.rollback(); // Desfaz as alterações realizadas caso aconteça algum erro durante a transação.
             return res.status(500).json({
                 message: "Erro ao cancelar a reserva!"
             });
